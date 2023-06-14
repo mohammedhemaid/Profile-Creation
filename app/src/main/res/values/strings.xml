@@ -1,3 +1,16 @@
 <resources>
-    <string name="app_name">Profile-Creation</string>
+    <string name="app_name" translatable="false">Profile-Creation</string>
+    <string name="profile_creation">Profile Creation</string>
+    <string name="signup_instructions">Use the form below to submit your portfolio.\nAn email and password are required.</string>
+    <string name="first_name">First Name</string>
+    <string name="email_address">Email Address</string>
+    <string name="password">Password</string>
+    <string name="website">Website</string>
+    <string name="submit">Submit</string>
+    <string name="image_empty_state">Tab to add avatar</string>
+
+    <string name="confirmation_title">Hello, %s!</string>
+    <string name="confirmation_message">Your super-awesome portfolio has been successfully submitted! The preview below is what the community will see!</string>
+    <string name="sign_in">Sign In</string>
+
 </resources>
