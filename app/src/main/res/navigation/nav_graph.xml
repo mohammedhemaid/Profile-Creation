@@ -18,6 +18,10 @@
         android:id="@+id/signUpConfirmationFragment"
         android:name="com.example.profile_creation.signupconfirmation.SignUpConfirmationFragment"
         android:label="fragment_sign_up_confirmation"
-        tools:layout="@layout/fragment_sign_up_confirmation" />
+        tools:layout="@layout/fragment_sign_up_confirmation">
+        <argument
+            android:name="userId"
+            app:argType="long" />
+    </fragment>
 
 </navigation>

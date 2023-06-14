@@ -9,14 +9,21 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.profile_creation.R
 import com.example.profile_creation.common.PermissionUtils
 import com.example.profile_creation.databinding.FragmentSignUpBinding
 import com.example.profile_creation.photo.PhotoImportManager
 import com.example.profile_creation.photo.PhotoImportOptionsDialog
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class SignUpFragment : Fragment(R.layout.fragment_sign_up),
     PhotoImportManager.Listener,
     PhotoImportOptionsDialog.Delegate {
@@ -29,6 +36,8 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up),
     private var _binding: FragmentSignUpBinding? = null
     private val binding get() = _binding!!
 
+    private val viewModel: SignUpViewModel by viewModels()
+
     private lateinit var photoImportManager: PhotoImportManager
     private lateinit var photoOptionsDialog: PhotoImportOptionsDialog
 
@@ -39,8 +48,30 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up),
         photoImportManager = PhotoImportManager(this)
         photoOptionsDialog = PhotoImportOptionsDialog(requireContext(), this)
 
+        lifecycleScope.launch {
+            viewModel.uiState.collect {
+                updateContent(it)
+            }
+        }
+
         onPhotoClickListener()
+        onFirstNameChanged()
+        onEmailChanged()
+        onPasswordChanged()
+        onWebsiteChanged()
         onSubmitClickListener()
+    }
+
+    private fun updateContent(signUpUiState: SignUpUiState) {
+        binding.apply {
+            imageEmptyState.isVisible = signUpUiState.imageUri.isNullOrEmpty()
+            signUpUiState.errorMessage?.let { message ->
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            }
+            if (signUpUiState.createdUserId != -1L) {
+                navigateToDetailsScreen(signUpUiState.createdUserId)
+            }
+        }
     }
 
     private fun onPhotoClickListener() {
@@ -51,11 +82,38 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up),
 
     private fun onSubmitClickListener() {
         binding.submit.setOnClickListener {
-            val action = SignUpFragmentDirections.actionSignUpFragmentToSignUpConfirmationFragment()
-            findNavController().navigate(action)
+            viewModel.createNewUser()
         }
     }
 
+    private fun navigateToDetailsScreen(userId: Long) {
+        val action = SignUpFragmentDirections.actionSignUpFragmentToSignUpConfirmationFragment(userId)
+        findNavController().navigate(action)
+    }
+
+    private fun onFirstNameChanged() {
+        binding.firstName.doOnTextChanged { text, _, _, _ ->
+            viewModel.updateFirstName(text.toString().trim())
+        }
+    }
+
+    private fun onEmailChanged() {
+        binding.email.doOnTextChanged { text, _, _, _ ->
+            viewModel.updateEmail(text.toString().trim())
+        }
+    }
+
+    private fun onPasswordChanged() {
+        binding.password.doOnTextChanged { text, _, _, _ ->
+            viewModel.updatePassword(text.toString().trim())
+        }
+    }
+
+    private fun onWebsiteChanged() {
+        binding.website.doOnTextChanged { text, _, _, _ ->
+            viewModel.updateWebsite(text.toString().trim())
+        }
+    }
 
     override fun addWithGallery() {
         if (PermissionUtils.isPermissionGranted(getReadStoragePermission(), requireContext())) {
@@ -151,6 +209,7 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up),
     override fun onAddPhotoSuccess(takenPhotoUri: Uri) {
         requireActivity().runOnUiThread {
             binding.image.setImageURI(takenPhotoUri)
+            viewModel.updateImage(takenPhotoUri.toString())
         }
     }
 
