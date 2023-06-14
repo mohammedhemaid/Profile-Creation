@@ -1,0 +1,12 @@
+*.apk
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+app/release/
+Random-Name-Picker.iml
+*PremiumBackDoor*
+*app.iml
+app/lint-baseline.xml
