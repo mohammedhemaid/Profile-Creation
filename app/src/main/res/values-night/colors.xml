@@ -9,5 +9,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="textInputStrokeColor">#E5E5E5</color>
     <color name="backgroundCardImage">#E1E1E1</color>
-    <color name="emptyStateTextColor" tools:ignore="MissingDefaultResource">#7A7A7A</color>
+    <color name="emptyStateTextColor">#7A7A7A</color>
 </resources>

@@ -13,4 +13,15 @@
     <string name="confirmation_message">Your super-awesome portfolio has been successfully submitted! The preview below is what the community will see!</string>
     <string name="sign_in">Sign In</string>
 
+    <string name="photo_options_dialog_title">Photo Options</string>
+    <string name="import_from_gallery">Import from gallery</string>
+    <string name="take_picture_with_camera">Take picture with camera</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="processing_your_photo">Processing your photo&#8230;</string>
+    <string name="photo_processing_failure">We failed to process your photo.</string>
+    <string name="take_photo_with_camera_failed">Sorry, we are unable to work with your device\'s camera.</string>
+
+    <string name="camera_permission_denied">To take a picture with camera, we need access to your camera.</string>
+    <string name="gallery_permission_denied">To import a picture from gallery, we need access to your storage.</string>
 </resources>
