@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.profile_creation.R
+import com.example.profile_creation.common.PermissionUtils
 import com.example.profile_creation.databinding.FragmentSignUpBinding
-import com.example.profile_creation.permissions.PermissionUtils
 import com.example.profile_creation.photo.PhotoImportManager
 import com.example.profile_creation.photo.PhotoImportOptionsDialog
 
