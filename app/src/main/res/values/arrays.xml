@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="photo_import_options_without_upload">
+        <item>@string/import_from_gallery</item>
+        <item>@string/take_picture_with_camera</item>
+    </string-array>
+
+</resources>
