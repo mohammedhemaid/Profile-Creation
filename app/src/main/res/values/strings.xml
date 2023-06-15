@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Profile-Creation</string>
+    <string name="app_name" translatable="false">Profile Creation</string>
     <string name="profile_creation">Profile Creation</string>
     <string name="signup_instructions">Use the form below to submit your portfolio.\nAn email and password are required.</string>
     <string name="first_name">First Name</string>
