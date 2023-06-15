@@ -48,10 +48,21 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up),
         photoImportManager = PhotoImportManager(this)
         photoOptionsDialog = PhotoImportOptionsDialog(requireContext(), this)
 
-        lifecycleScope.launch {
-            viewModel.uiState.collect {
-                updateContent(it)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.navigateToConfirmation.collect { userId ->
+                navigateToDetailsScreen(userId)
             }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.showError.collect { message ->
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        if (viewModel.imageUri.isNotEmpty()) {
+            binding.imageEmptyState.isVisible = false
+            binding.image.setImageURI(Uri.parse(viewModel.imageUri))
         }
 
         onPhotoClickListener()
@@ -62,18 +73,6 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up),
         onSubmitClickListener()
     }
 
-    private fun updateContent(signUpUiState: SignUpUiState) {
-        binding.apply {
-            imageEmptyState.isVisible = signUpUiState.imageUri.isNullOrEmpty()
-            signUpUiState.errorMessage?.let { message ->
-                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-            }
-            if (signUpUiState.createdUserId != -1L) {
-                navigateToDetailsScreen(signUpUiState.createdUserId)
-            }
-        }
-    }
-
     private fun onPhotoClickListener() {
         binding.imageCard.setOnClickListener {
             photoOptionsDialog.showPhotoOptions()
@@ -82,36 +81,37 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up),
 
     private fun onSubmitClickListener() {
         binding.submit.setOnClickListener {
-            viewModel.createNewUser()
+            viewModel.submitUser()
         }
     }
 
     private fun navigateToDetailsScreen(userId: Long) {
-        val action = SignUpFragmentDirections.actionSignUpFragmentToSignUpConfirmationFragment(userId)
+        val action =
+            SignUpFragmentDirections.actionSignUpFragmentToSignUpConfirmationFragment(userId)
         findNavController().navigate(action)
     }
 
     private fun onFirstNameChanged() {
         binding.firstName.doOnTextChanged { text, _, _, _ ->
-            viewModel.updateFirstName(text.toString().trim())
+            viewModel.firstName = text.toString().trim()
         }
     }
 
     private fun onEmailChanged() {
         binding.email.doOnTextChanged { text, _, _, _ ->
-            viewModel.updateEmail(text.toString().trim())
+            viewModel.email = text.toString().trim()
         }
     }
 
     private fun onPasswordChanged() {
         binding.password.doOnTextChanged { text, _, _, _ ->
-            viewModel.updatePassword(text.toString().trim())
+            viewModel.password = text.toString().trim()
         }
     }
 
     private fun onWebsiteChanged() {
         binding.website.doOnTextChanged { text, _, _, _ ->
-            viewModel.updateWebsite(text.toString().trim())
+            viewModel.website = text.toString().trim()
         }
     }
 
@@ -171,7 +171,11 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up),
             if (isGranted) {
                 startCameraPage()
             } else {
-                Toast.makeText(requireContext(), R.string.camera_permission_denied, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    R.string.camera_permission_denied,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -182,7 +186,11 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up),
             if (isGranted) {
                 addWithGallery()
             } else {
-                Toast.makeText(requireContext(), R.string.gallery_permission_denied, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    R.string.gallery_permission_denied,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -190,26 +198,30 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up),
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
             CAMERA_REQUEST_CODE -> if (resultCode == AppCompatActivity.RESULT_OK) {
-                Toast.makeText(requireContext(), R.string.processing_your_photo, Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), R.string.processing_your_photo, Toast.LENGTH_SHORT)
+                    .show()
                 photoImportManager.processTakenPhoto(requireContext())
             } else if (resultCode == AppCompatActivity.RESULT_CANCELED) {
                 photoImportManager.deleteLastTakenPhoto()
             }
             GALLERY_REQUEST_CODE -> if (resultCode == AppCompatActivity.RESULT_OK) {
-                Toast.makeText(requireContext(), R.string.processing_your_photo, Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), R.string.processing_your_photo, Toast.LENGTH_SHORT)
+                    .show()
                 photoImportManager.processSelectedPhoto(requireContext(), data)
             }
         }
     }
 
     override fun onAddPhotoFailure() {
-        Toast.makeText(requireContext(), R.string.photo_processing_failure, Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), R.string.photo_processing_failure, Toast.LENGTH_SHORT)
+            .show()
     }
 
     override fun onAddPhotoSuccess(takenPhotoUri: Uri) {
         requireActivity().runOnUiThread {
             binding.image.setImageURI(takenPhotoUri)
-            viewModel.updateImage(takenPhotoUri.toString())
+            binding.imageEmptyState.isVisible = false
+            viewModel.imageUri = takenPhotoUri.toString()
         }
     }
 

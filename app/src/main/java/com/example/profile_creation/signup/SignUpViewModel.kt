@@ -1,76 +1,71 @@
 package com.example.profile_creation.signup
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.profile_creation.R
+import com.example.profile_creation.extension.isValidEmail
+import com.example.profile_creation.extension.isValidPassword
+import com.example.profile_creation.extension.isValidUrl
 import com.example.profile_creation.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class SignUpUiState(
-    val firstName: String = "",
-    val email: String = "",
-    val password: String = "",
-    val imageUri: String? = null,
-    val website: String? = null,
-    val createdUserId: Long = -1L,
-    @StringRes val errorMessage: Int? = null
-)
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SignUpUiState())
-    val uiState: StateFlow<SignUpUiState> = _uiState.asStateFlow()
+    private val _showError = MutableSharedFlow<Int>()
+    val showError: SharedFlow<Int> = _showError
 
-    fun createNewUser() = viewModelScope.launch(Dispatchers.IO) {
-        val userId = userRepository.createNote(
-            firstName = uiState.value.firstName,
-            email = uiState.value.email,
-            password = uiState.value.password,
-            imageUri = uiState.value.imageUri,
-            website = uiState.value.website
+    private val _navigateToConfirmation = MutableSharedFlow<Long>()
+    val navigateToConfirmation: SharedFlow<Long> get() = _navigateToConfirmation
+
+    var firstName = ""
+    var email = ""
+    var password = ""
+    var imageUri = ""
+    var website = ""
+
+    fun submitUser() {
+        val errorMessage = isInputValid()
+        if (errorMessage != -1) {
+            viewModelScope.launch {
+                _showError.emit(errorMessage)
+            }
+            return
+        }
+
+        createNewUser()
+    }
+
+    private fun createNewUser() = viewModelScope.launch(Dispatchers.IO) {
+        val userId = userRepository.createUser(
+            firstName = firstName,
+            email = email,
+            password = password,
+            imageUri = imageUri,
+            website = website
         )
-        _uiState.update {
-            it.copy(createdUserId = userId)
+        if (userId != -1L) {
+            _navigateToConfirmation.emit(userId)
         }
     }
 
-    fun updateFirstName(firstName: String) {
-        _uiState.update {
-            it.copy(firstName = firstName)
+    private fun isInputValid(): Int {
+        if (firstName.isEmpty()) {
+            return R.string.first_name_validation_message
+        } else if (!email.isValidEmail()) {
+            return R.string.email_validation_message
+        } else if (!password.isValidPassword()) {
+            return R.string.password_validation_message
+        } else if (website.isNotEmpty() && !website.isValidUrl()) {
+            return R.string.website_validation_message
         }
-    }
-
-    fun updateEmail(email: String) {
-        _uiState.update {
-            it.copy(email = email)
-        }
-    }
-
-    fun updatePassword(password: String) {
-        _uiState.update {
-            it.copy(password = password)
-        }
-    }
-
-    fun updateImage(imageUri: String?) {
-        _uiState.update {
-            it.copy(imageUri = imageUri)
-        }
-    }
-
-    fun updateWebsite(website: String?) {
-        _uiState.update {
-            it.copy(website = website)
-        }
+        return -1
     }
 }

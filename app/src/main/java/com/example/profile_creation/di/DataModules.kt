@@ -20,7 +20,7 @@ abstract class RepositoryModule {
 
     @Singleton
     @Binds
-    abstract fun bindNoteRepository(repository: UserRepositoryImpl): UserRepository
+    abstract fun bindUserRepository(repository: UserRepositoryImpl): UserRepository
 }
 
 @Module
@@ -38,5 +38,5 @@ object DatabaseModule {
     }
 
     @Provides
-    fun provideNoteDao(database: AppDatabase): UserDao = database.userDao()
+    fun provideUserDao(database: AppDatabase): UserDao = database.userDao()
 }

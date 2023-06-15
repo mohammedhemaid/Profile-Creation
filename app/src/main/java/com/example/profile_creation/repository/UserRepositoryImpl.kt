@@ -14,7 +14,7 @@ class UserRepositoryImpl @Inject constructor(
         return dataSource.getUserById(id)
     }
 
-    override suspend fun createNote(
+    override suspend fun createUser(
         firstName: String,
         email: String,
         password: String,

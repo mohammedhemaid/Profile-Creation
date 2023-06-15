@@ -6,6 +6,6 @@ interface UserRepository {
 
     suspend fun getUser(id: Long): User?
 
-    suspend fun createNote(firstName: String, email: String, password:String, imageUri: String?, website:String?): Long
+    suspend fun createUser(firstName: String, email: String, password:String, imageUri: String?, website:String?): Long
 
 }
